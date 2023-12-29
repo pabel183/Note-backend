@@ -11,7 +11,7 @@ var GoogleStrategy = require('passport-google-oauth20').Strategy;
 const app = express();
 const { Schema } = mongoose;
 const userSchema = new Schema({
-    _id: String,
+    userId: String,
     notes: [
         {
             title: String,
@@ -45,14 +45,14 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:4000/auth/google/callback"
 },
     function (accessToken, refreshToken, profile, done) {
-        User.findOne({ _id: profile.id })
+        User.findOne({ userId: profile.id })
             .then((response) => {
                 if (response) {
                     return done(null, response);
                 }
                 else {
                     const newUser = new User({
-                        _id: profile.id,
+                        userId: profile.id,
                         notes: []
                     })
                     const data = newUser.save()
@@ -82,21 +82,43 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
-        const token = req.user.id;
+        const token = req.user.userId;
         //const token=req.user.token;
         // console.log(token);
         res.redirect(`http://localhost:3000?token=${token}`)
     });
 
-app.get("/fetchdata", (req, res) => {
+app.post("/fetchdata", (req, res) => {
     //for checking I am using insetData;
-    User.findOne({ _id: "108181120126577826021" })
+    const {selector}=req.body;
+    User.findOne({ userId: selector })
+    .then((response)=>{
+        res.json(response.notes);
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+})
+app.post("/addData",(req,res)=>{
+    const {data,selector}=req.body;
+    User.findOneAndUpdate({ userId: selector },
+    { $push: { notes: data } },
+    { new: true })
+    .then((response)=>{
+        // console.log(response);
+    })
+    .catch((err)=>{
+        console.log(err);
+    })
+});
+app.post("/update",(req,res)=>{
+    const selector=req.body.slector;
+    User.findOne({ userId: selector })
     .then((response)=>{
         console.log(response);
     })
     .catch((err)=>{
         console.log(err);
     })
-})
-
+});
 app.listen(4000, () => console.log("server is connected on port 4000"));
