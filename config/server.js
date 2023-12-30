@@ -13,10 +13,11 @@ const { Schema } = mongoose;
 const userSchema = new Schema({
     userId: String,
     notes: [
-        {
-            title: String,
+        {   
+            id:{type: String, unique:true},
+            title: {type: String, unique:true},
             date: String,
-            description: String
+            description: {type: String, unique: true}
         }
     ]
 })
@@ -101,6 +102,7 @@ app.post("/fetchdata", (req, res) => {
 })
 app.post("/addData",(req,res)=>{
     const {data,selector}=req.body;
+    console.log("data arrived to this addData route");
     User.findOneAndUpdate({ userId: selector },
     { $push: { notes: data } },
     { new: true })
@@ -111,14 +113,14 @@ app.post("/addData",(req,res)=>{
         console.log(err);
     })
 });
-app.post("/update",(req,res)=>{
-    const selector=req.body.slector;
-    User.findOne({ userId: selector })
-    .then((response)=>{
-        console.log(response);
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
-});
+// app.post("/update",(req,res)=>{
+//     const selector=req.body.slector;
+//     User.findOne({ userId: selector })
+//     .then((response)=>{
+//         console.log(response);
+//     })
+//     .catch((err)=>{
+//         console.log(err);
+//     })
+// });
 app.listen(4000, () => console.log("server is connected on port 4000"));
