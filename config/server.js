@@ -102,16 +102,28 @@ app.post("/fetchdata", (req, res) => {
 })
 app.post("/addData",(req,res)=>{
     const {data,selector}=req.body;
-    console.log("data arrived to this addData route");
     User.findOneAndUpdate({ userId: selector },
-    { $push: { notes: data } },
-    { new: true })
-    .then((response)=>{
-        // console.log(response);
+        { $push: { notes: data } },
+        { new: true })
+        .then((response)=>{
+        res.status(200).send("Ok");
     })
     .catch((err)=>{
         console.log(err);
     })
+});
+app.delete("/delete",(req,res)=>{
+    const {data,selector}=req.body;
+    User.updateOne(
+        { userId: selector },
+        { $pull: { notes: {id:{$in: data.map(item=>item.id)}} } }
+      )
+        .then((response) => {
+            res.status(200).send("Ok");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
 });
 // app.post("/update",(req,res)=>{
 //     const selector=req.body.slector;
