@@ -146,14 +146,18 @@ app.delete("/delete", (req, res) => {
             console.log(err);
         });
 });
-// app.post("/update",(req,res)=>{
-//     const selector=req.body.slector;
-//     User.findOne({ userId: selector })
-//     .then((response)=>{
-//         console.log(response);
-//     })
-//     .catch((err)=>{
-//         console.log(err);
-//     })
-// });
+app.put("/update",(req,res)=>{
+    const {data,selector}=req.body;
+    User.updateOne(
+        { userId: selector },
+        // { $set: { notes: { id: data.id } } } 
+         { $set: { 'notes.$': data } }
+    )
+        .then((response) => {
+            res.status(200).send("Ok");
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+});
 app.listen(4000, () => console.log("server is connected on port 4000"));
