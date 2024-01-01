@@ -7,20 +7,39 @@ const database = require("./database");
 var passport = require('passport');
 const session = require('express-session');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
+const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 
 const app = express();
 const { Schema } = mongoose;
+// const userSchema = new Schema({
+//     userId: String,
+//     notes: [
+//         {
+//             id: { type: String, unique: true },
+//             title: { type: String, unique: true },
+//             date: String,
+//             description: { type: String, unique: true }
+//         }
+//     ]
+// })
 const userSchema = new Schema({
-    userId: String,
+    userId: { type: String, unique: true },
+    hashedPassword: String,
     notes: [
-        {   
-            id:{type: String, unique:true},
-            title: {type: String, unique:true},
-            date: String,
-            description: {type: String, unique: true}
-        }
+      {
+        id: { type: String, unique: true },
+        title: { type: String, unique: true },
+        date: String,
+        description: { type: String, unique: true }
+      }
     ]
-})
+  });
+  userSchema.pre('save', async function() {
+    if (this.isModified('userId')) {
+      this.hashedPassword = await bcrypt.hash(this.userId, 10);
+    }
+  });
 const User = mongoose.model('User', userSchema);
 
 console.log(process.env.MONGO_URL);
@@ -46,23 +65,25 @@ passport.use(new GoogleStrategy({
     callbackURL: "http://localhost:4000/auth/google/callback"
 },
     function (accessToken, refreshToken, profile, done) {
-        User.findOne({ userId: profile.id })
+        //        const _ticket = jwt.sign({user:profile.displayName}, profile.id);
+       const _ticket=crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
+            User.findOne({ userId: _ticket })
             .then((response) => {
                 if (response) {
                     return done(null, response);
                 }
                 else {
                     const newUser = new User({
-                        userId: profile.id,
+                        userId: _ticket,
                         notes: []
                     })
                     const data = newUser.save()
-                        .then((response) => {
-                            return done(null, response);
-                        })
-                        .catch((err) => {
-                            return done(err);
-                        })
+                    .then((response) => {
+                        return done(null, response);
+                    })
+                    .catch((err) => {
+                        return done(err);
+                    })
                 }
             })
             .catch((err) => {
@@ -83,46 +104,46 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
-        const token = req.user.userId;
+        const _ticket = req.user.userId;
         //const token=req.user.token;
         // console.log(token);
-        res.redirect(`http://localhost:3000?token=${token}`)
+        res.redirect(`http://localhost:3000?_ticket=${_ticket}`)
     });
 
 app.post("/fetchdata", (req, res) => {
     //for checking I am using insetData;
-    const {selector}=req.body;
+    const { selector } = req.body;
     User.findOne({ userId: selector })
-    .then((response)=>{
-        res.json(response.notes);
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
+        .then((response) => {
+            res.json(response.notes);
+        })
+        .catch((err) => {
+            console.log(err);
+        })
 })
-app.post("/addData",(req,res)=>{
-    const {data,selector}=req.body;
+app.post("/addData", (req, res) => {
+    const { data, selector } = req.body;
     User.findOneAndUpdate({ userId: selector },
         { $push: { notes: data } },
         { new: true })
-        .then((response)=>{
-        res.status(200).send("Ok");
-    })
-    .catch((err)=>{
-        console.log(err);
-    })
-});
-app.delete("/delete",(req,res)=>{
-    const {data,selector}=req.body;
-    User.updateOne(
-        { userId: selector },
-        { $pull: { notes: {id:{$in: data.map(item=>item.id)}} } }
-      )
         .then((response) => {
             res.status(200).send("Ok");
         })
         .catch((err) => {
-          console.log(err);
+            console.log(err);
+        })
+});
+app.delete("/delete", (req, res) => {
+    const { data, selector } = req.body;
+    User.updateOne(
+        { userId: selector },
+        { $pull: { notes: { id: { $in: data.map(item => item.id) } } } }
+    )
+        .then((response) => {
+            res.status(200).send("Ok");
+        })
+        .catch((err) => {
+            console.log(err);
         });
 });
 // app.post("/update",(req,res)=>{
