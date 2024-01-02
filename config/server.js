@@ -27,19 +27,19 @@ const userSchema = new Schema({
     userId: { type: String, unique: true },
     hashedPassword: String,
     notes: [
-      {
-        id: { type: String, unique: true },
-        title: { type: String, unique: true },
-        date: String,
-        description: { type: String, unique: true }
-      }
+        {
+            id: { type: String, unique: true },
+            title: { type: String, unique: true },
+            date: String,
+            description: { type: String, unique: true }
+        }
     ]
-  });
-  userSchema.pre('save', async function() {
+});
+userSchema.pre('save', async function () {
     if (this.isModified('userId')) {
-      this.hashedPassword = await bcrypt.hash(this.userId, 10);
+        this.hashedPassword = await bcrypt.hash(this.userId, 10);
     }
-  });
+});
 const User = mongoose.model('User', userSchema);
 
 console.log(process.env.MONGO_URL);
@@ -66,8 +66,8 @@ passport.use(new GoogleStrategy({
 },
     function (accessToken, refreshToken, profile, done) {
         //        const _ticket = jwt.sign({user:profile.displayName}, profile.id);
-       const _ticket=crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
-            User.findOne({ userId: _ticket })
+        const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
+        User.findOne({ userId: _ticket })
             .then((response) => {
                 if (response) {
                     return done(null, response);
@@ -78,12 +78,12 @@ passport.use(new GoogleStrategy({
                         notes: []
                     })
                     const data = newUser.save()
-                    .then((response) => {
-                        return done(null, response);
-                    })
-                    .catch((err) => {
-                        return done(err);
-                    })
+                        .then((response) => {
+                            return done(null, response);
+                        })
+                        .catch((err) => {
+                            return done(err);
+                        })
                 }
             })
             .catch((err) => {
@@ -146,12 +146,13 @@ app.delete("/delete", (req, res) => {
             console.log(err);
         });
 });
-app.put("/update",(req,res)=>{
-    const {data,selector}=req.body;
+app.put("/update", (req, res) => {
+    const { data, selector } = req.body;
+    console.log(selector);
+    console.log(data);
     User.updateOne(
-        { userId: selector },
-        // { $set: { notes: { id: data.id } } } 
-         { $set: { 'notes.$': data } }
+        { userId: selector, 'notes.id': data.id },
+        { $set: { 'notes.$.id': data.id, 'notes.$.title': data.title, 'notes.$.date': data.date, 'notes.$.description': data.description } }
     )
         .then((response) => {
             res.status(200).send("Ok");
