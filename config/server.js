@@ -148,8 +148,6 @@ app.delete("/delete", (req, res) => {
 });
 app.put("/update", (req, res) => {
     const { data, selector } = req.body;
-    console.log(selector);
-    console.log(data);
     User.updateOne(
         { userId: selector, 'notes.id': data.id },
         { $set: { 'notes.$.id': data.id, 'notes.$.title': data.title, 'notes.$.date': data.date, 'notes.$.description': data.description } }
