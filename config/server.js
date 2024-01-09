@@ -1,4 +1,4 @@
-let dotenv=require('dotenv').config();
+let dotenv = require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -61,7 +61,8 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret,
-    callbackURL: process.env.callbackURL,
+    callbackURL: ((process.env.PORT + "/auth/google/callback") || ("http://localhost:4000/auth/google/callback")),
+    // callbackURL: process.env.callbackURL,
 },
     function (accessToken, refreshToken, profile, done) {
         const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
@@ -154,4 +155,4 @@ app.put("/update", (req, res) => {
             console.log(err);
         });
 });
-app.listen(process.env.PORT||4000, () => console.log("server is connected on port 4000"));
+app.listen(process.env.PORT || 4000, () => console.log("server is connected on port 4000"));
