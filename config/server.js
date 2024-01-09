@@ -1,4 +1,4 @@
-require('dotenv').config();
+let dotenv=require('dotenv').config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -42,8 +42,7 @@ userSchema.pre('save', async function () {
 });
 const User = mongoose.model('User', userSchema);
 
-console.log(process.env.MONGO_URL);
-mongoose.connect("mongodb+srv://jhpabel183:FakyFjNVcwXQykbh@cluster0.iuz0cpg.mongodb.net/notedb?retryWrites=true&w=majority")
+mongoose.connect(process.env.URL)
     .then(() => console.log("mongodb is connected"))
     .catch((error) => console.error(error));
 
@@ -60,12 +59,11 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new GoogleStrategy({
-    clientID: "393849242310-979js4cap1k3s0dlibrjv3ueo5p6u9af.apps.googleusercontent.com",
-    clientSecret: "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",
-    callbackURL: "http://localhost:4000/auth/google/callback"
+    clientID: process.env.clientID,
+    clientSecret: process.env.clientSecret,
+    callbackURL: process.env.callbackURL,
 },
     function (accessToken, refreshToken, profile, done) {
-        //        const _ticket = jwt.sign({user:profile.displayName}, profile.id);
         const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
         User.findOne({ userId: _ticket })
             .then((response) => {
@@ -105,13 +103,10 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
         const _ticket = req.user.userId;
-        //const token=req.user.token;
-        // console.log(token);
         res.redirect(`http://localhost:3000?_ticket=${_ticket}`)
     });
 
 app.post("/fetchdata", (req, res) => {
-    //for checking I am using insetData;
     const { selector } = req.body;
     User.findOne({ userId: selector })
         .then((response) => {
