@@ -112,6 +112,9 @@ app.get('/auth/google/callback',
         // res.redirect(`http://localhost:3000?_ticket=${_ticket}`);
         res.redirect(process.env.redirectURL+_ticket);
     });
+app.get("/",(req,res)=>{
+    res.send("hello");
+})
 
 app.post("/fetchdata", (req, res) => {
     const { selector } = req.body;
