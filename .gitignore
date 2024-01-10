@@ -60,5 +60,5 @@ combo/
 reference/
 jscoverage_lib/
 temp
-.env
+config/.env
 note-backend\config\.env
