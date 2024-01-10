@@ -3,7 +3,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const mongoose = require('mongoose');
-const database = require("./database");
 var passport = require('passport');
 const session = require('express-session');
 var GoogleStrategy = require('passport-google-oauth20').Strategy;
