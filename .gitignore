@@ -59,4 +59,5 @@ build/
 combo/
 reference/
 jscoverage_lib/
-temp/
+temp
+.env
