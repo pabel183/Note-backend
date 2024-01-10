@@ -57,11 +57,17 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+const clientID= process.env.clientID;
+const clientSecret= process.env.clientSecret;
+const callbackURL= process.env.callbackURL;
+console.log(clientID);
+console.log(clientSecret);
+console.log(callbackURL);
 passport.use(new GoogleStrategy({
-    clientID: process.env.clientID,
-    clientSecret: process.env.clientSecret,
-    callbackURL: process.env.callbackURL,
-    // callbackURL: (("https://note-backend-ashy.vercel.app/auth/google/callback") || ("http://localhost:4000/auth/google/callback")),
+    clientID,
+    clientSecret,
+    // callbackURL,
+    callbackURL:  ("http://localhost:4000/auth/google/callback"),
 },
     function (accessToken, refreshToken, profile, done) {
         const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
@@ -103,7 +109,8 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
         const _ticket = req.user.userId;
-        res.redirect(`${process.env.redirectURL}${_ticket}`);
+        // res.redirect(`http://localhost:3000?_ticket=${_ticket}`);
+        res.redirect(process.env.redirectURL+_ticket);
     });
 
 app.post("/fetchdata", (req, res) => {
