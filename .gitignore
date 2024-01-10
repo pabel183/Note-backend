@@ -61,3 +61,4 @@ reference/
 jscoverage_lib/
 temp
 .env
+note-backend\config\.env
