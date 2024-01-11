@@ -22,6 +22,7 @@ const { Schema } = mongoose;
 //         }
 //     ]
 // })
+/*
 const userSchema = new Schema({
     userId: { type: String, unique: true },
     hashedPassword: String,
@@ -40,7 +41,6 @@ userSchema.pre('save', async function () {
     }
 });
 const User = mongoose.model('User', userSchema);
-
 mongoose.connect(process.env.URL)
     .then(() => console.log("mongodb is connected"))
     .catch((error) => console.error(error));
@@ -60,9 +60,6 @@ app.use(passport.session());
 const clientID= process.env.clientID;
 const clientSecret= process.env.clientSecret;
 const callbackURL= process.env.callbackURL;
-console.log(clientID);
-console.log(clientSecret);
-console.log(callbackURL);
 passport.use(new GoogleStrategy({
     clientID,
     clientSecret,
@@ -164,4 +161,8 @@ app.put("/update", (req, res) => {
             console.log(err);
         });
 });
+*/
+app.get("/",(req,res)=>{
+    res.send("vercell server is ok");
+})
 app.listen(process.env.PORT || 4000, () => console.log("server is connected on port 4000"));

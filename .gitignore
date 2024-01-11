@@ -63,3 +63,5 @@ temp
 config/.env
 .env
 
+
+.vercel
