@@ -63,8 +63,8 @@ const callbackURL= process.env.callbackURL;
 passport.use(new GoogleStrategy({
     clientID,
     clientSecret,
-    // callbackURL,
-    callbackURL:  ("http://localhost:4000/auth/google/callback"),
+    callbackURL,
+    //callbackURL:  ("http://localhost:4000/auth/google/callback"),
 },
     function (accessToken, refreshToken, profile, done) {
         const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
@@ -163,6 +163,6 @@ app.put("/update", (req, res) => {
 });
 
 app.get("/",(req,res)=>{
-    res.send("vercell server is ok");
+    res.send("live server is ok");
 })
 app.listen(process.env.PORT || 4000, () => console.log("server is connected on port 4000"));
