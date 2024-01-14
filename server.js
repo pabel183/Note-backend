@@ -23,18 +23,33 @@ const { Schema } = mongoose;
 //     ]
 // })
 
+// const userSchema = new Schema({
+//     userId: { type: String, unique: true },
+//     hashedPassword: String,
+//     notes: [
+//         {
+//             id: { type: String, unique: true },
+//             title: { type: String, unique: true },
+//             date: String,
+//             description: { type: String, unique: true }
+//         }
+//     ]
+// });
 const userSchema = new Schema({
     userId: { type: String, unique: true },
     hashedPassword: String,
     notes: [
         {
-            id: { type: String, unique: true },
-            title: { type: String, unique: true },
+            id: { type: String },
+            title: { type: String },
             date: String,
-            description: { type: String, unique: true }
+            description: { type: String }
         }
     ]
 });
+
+userSchema.index({ userId: 1, 'notes.id': 1, 'notes.title': 1, 'notes.description': 1 }, { unique: true });
+
 userSchema.pre('save', async function () {
     if (this.isModified('userId')) {
         this.hashedPassword = await bcrypt.hash(this.userId, 10);
@@ -80,9 +95,11 @@ passport.use(new GoogleStrategy({
                     })
                     const data = newUser.save()
                         .then((response) => {
+                            //targeted error is here
                             return done(null, response);
                         })
                         .catch((err) => {
+                            //targeted error is here
                             return done(err);
                         })
                 }
