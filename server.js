@@ -79,8 +79,8 @@ const callbackURL= process.env.callbackURL;
 passport.use(new GoogleStrategy({
     clientID,
     clientSecret,
-    // callbackURL,
-    callbackURL:  ("http://localhost:4000/auth/google/callback"),
+    callbackURL,
+    // callbackURL:  ("http://localhost:4000/auth/google/callback"),
 },
     function (accessToken, refreshToken, profile, done) {
         const _ticket = crypto.createHash('sha256').update(profile.displayName + profile.id).digest('hex');
@@ -124,8 +124,8 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login' }),
     function (req, res) {
         const _ticket = req.user.userId;
-        res.redirect(`http://localhost:3000?_ticket=${_ticket}`);
-        // res.redirect(process.env.redirectURL+_ticket);  
+        // res.redirect(301,`http://localhost:3000?_ticket=${_ticket}`);
+        res.redirect(301, process.env.redirectURL+_ticket);  
     });
 // app.get("/",(req,res)=>{
 //     res.send("hello");
