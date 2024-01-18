@@ -125,7 +125,10 @@ app.get('/auth/google/callback',
     function (req, res) {
         const _ticket = req.user.userId;
         // res.redirect(301,`http://localhost:3000?_ticket=${_ticket}`);
-        res.redirect(301, process.env.redirectURL+_ticket);  
+        // res.redirect(301, process.env.redirectURL+_ticket);  
+        res.writeHead(302, { Location: process.env.redirectURL + _ticket });
+        res.end();
+
     });
 // app.get("/",(req,res)=>{
 //     res.send("hello");
